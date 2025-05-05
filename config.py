@@ -1,0 +1,1 @@
+DEEPL_API_KEY = "c6f8f0b4-40a7-41eb-ba09-8e69c19a2f06:fx"

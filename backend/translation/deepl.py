@@ -1,13 +1,14 @@
 # Lawan Mai
 # Version 1.0
-# Module for translating Japanese text into English using DeepL API
+# Module for translating english text into target language using DeepL API
 
 import requests
 from config import DEEPL_API_KEY
 
 DEEPL_API_URL = "https://api-free.deepl.com/v2/translate"
 
-def translate_deepl_batch(texts, source_lang="JA", target_lang="EN"):
+
+def translate_deepl_batch(texts, source_lang="EN", target_lang="DE"):
     if not texts:
         return []
 

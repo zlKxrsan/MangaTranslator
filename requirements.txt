@@ -2,4 +2,3 @@ paddlepaddle
 paddleocr
 pillow
 setuptools
-requests

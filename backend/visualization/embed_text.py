@@ -1,6 +1,6 @@
 # Lawan Mai
 # Version 1.0
-# Module for visualizing translations in manga images using draw_ocr
+# Module for visualizing translations in webtoon images using draw_ocr
 
 from paddleocr import draw_ocr
 from PIL import Image

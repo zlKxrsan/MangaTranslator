@@ -1,10 +1,32 @@
 # Lawan Mai
-# Version 1.0
-# Module for text recognition from manga panels using PaddleOCR
+# Version 2.0
+# Module for text recognition from webtoon images using PaddleOCR
 
-from paddleocr import PaddleOCR
+from paddleocr import PaddleOCR, draw_ocr
+from PIL import Image
+import numpy as np
+import os
+from .cluster import cluster_bounding_boxes
 
-def get_ocr_result(img_path):
-    ocr = PaddleOCR(use_angle_cls=True, lang='japan')
-    result = ocr.ocr(img_path, cls=True)
-    return result[0]
+
+def ocr_and_cluster(img_path, treshold=30):
+
+    # Initialize PaddleOCR
+    ocr = PaddleOCR(
+        lang="en",  # use English-only models
+        use_angle_cls=True,
+        det_model="en_PP-OCRv3_det",
+        rec_model="en_PP-OCRv3_rec",
+    )
+
+    # Perform OCR
+    result = ocr.ocr(img_path, cls=True)[0]
+
+    # Extract bounding boxes and texts
+    bbox = [line[0] for line in result]
+    txts = [line[1][0] for line in result]
+
+    # Cluster bounding boxes
+    clustered_data = cluster_bounding_boxes(bbox, txts)
+
+    return clustered_data

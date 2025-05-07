@@ -9,7 +9,8 @@ from backend.visualization.embed_text import embed_text_in_image
 
 def main():
     # Path to the image
-    img_path = ".panels/coworker.png"
+    img_path = ".panels/eldrich.png"
+    output_path = ".output/eldrich_translated.png"
 
     # Perform OCR and clustering
     speech_bubbles = ocr_and_cluster(img_path, treshold=30)
@@ -25,7 +26,7 @@ def main():
         bubble + [text] for bubble, text in zip(bubbles, translated_texts)
     ]
 
-    embed_text_in_image(img_path, speech_bubbles_data)
+    embed_text_in_image(img_path, speech_bubbles_data, output_path)
     print("done")
 
 

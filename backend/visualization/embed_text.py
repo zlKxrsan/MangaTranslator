@@ -35,13 +35,18 @@ def draw_bounding_boxes_and_text_with_pillow(image, draw, speech_bubbles_data):
         y_min = int(min([p[1] for p in cluster]))
         y_max = int(max([p[1] for p in cluster]))
 
-        # Versuche die Farbe eines Pixels direkt unterhalb der Box zu lesen
         sample_x = (x_min + x_max) // 2  # Mittlerer X-Wert
-        sample_y = y_max + 1
+        sample_y = y_max + 1  # Direkt unterhalb der Bounding Box (für Hintergrundfarbe)
+
+        # Hole die Hintergrundfarbe des Pixels unterhalb der Box
         if 0 <= sample_x < width and 0 <= sample_y < height:
             background_color = image.getpixel((sample_x, sample_y))
         else:
-            background_color = (0, 0, 0)  # Fallback: Schwarz
+            background_color = (
+                0,
+                0,
+                0,
+            )  # Fallback auf Schwarz, falls außerhalb des Bildes
 
         # Box mit der ermittelten Farbe (leicht transparent, z.B. 160) füllen
         draw.rectangle([x_min, y_min, x_max, y_max], fill=(*background_color[:3], 160))
@@ -106,9 +111,9 @@ def wrap_text(text, font, max_width):
     return lines
 
 
-def embed_text_in_image(image_path, speech_bubbles_data):
+def embed_text_in_image(image_path, speech_bubbles_data, output_path):
     # Lade das Bild
-    image = Image.open(image_path)
+    image = Image.open(image_path).convert("RGB")
     draw = ImageDraw.Draw(image)
 
     # Zeichne die Bounding Boxen und Texte
@@ -117,4 +122,4 @@ def embed_text_in_image(image_path, speech_bubbles_data):
     )
 
     # Speichere das Ergebnis
-    result_image.save(".output/coworkerPillow2.png")
+    result_image.save(output_path)

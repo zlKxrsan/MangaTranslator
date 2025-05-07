@@ -8,7 +8,9 @@ from config import DEEPL_API_KEY
 DEEPL_API_URL = "https://api-free.deepl.com/v2/translate"
 
 
-def translate_deepl_batch(texts, source_lang="EN", target_lang="DE"):
+def translate_deepl_batch(
+    texts, source_lang="EN", target_lang="DE", formality="prefer_less"
+):
     if not texts:
         return []
 
@@ -17,6 +19,7 @@ def translate_deepl_batch(texts, source_lang="EN", target_lang="DE"):
         data.append(("text", txt))
     data.append(("source_lang", source_lang))
     data.append(("target_lang", target_lang))
+    data.append(("formality", formality))
 
     try:
         response = requests.post(DEEPL_API_URL, data=data)

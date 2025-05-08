@@ -1,9 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
 
-# Bild laden
-image = Image.open(".panels/coworker.png")
-draw = ImageDraw.Draw(image)
-
 
 def get_best_font_size(text, font_path, max_width, max_height):
     font_size = 10
@@ -24,7 +20,9 @@ def get_best_font_size(text, font_path, max_width, max_height):
 
 
 # Funktion zum Berechnen des Textumbruchs und der Textplatzierung
-def draw_bounding_boxes_and_text_with_pillow(image, draw, speech_bubbles_data):
+def draw_bounding_boxes_and_text_with_pillow(
+    image, draw, speech_bubbles_data, font_path
+):
     width, height = image.size
     for bubble in speech_bubbles_data:
         cluster = bubble[:-1]
@@ -56,7 +54,6 @@ def draw_bounding_boxes_and_text_with_pillow(image, draw, speech_bubbles_data):
             max_width = x_max - x_min - 10  # z.B. 5px Padding links und rechts
             max_height = y_max - y_min - 10  # z.B. 5px Padding oben und unten
 
-            font_path = ".fonts/Bangers-Regular.ttf"
             best_size = get_best_font_size(text, font_path, max_width, max_height)
             font = ImageFont.truetype(font_path, size=best_size)
         except IOError:
@@ -111,14 +108,14 @@ def wrap_text(text, font, max_width):
     return lines
 
 
-def embed_text_in_image(image_path, speech_bubbles_data, output_path):
+def embed_text_in_image(image_path, speech_bubbles_data, output_path, font_path):
     # Lade das Bild
     image = Image.open(image_path).convert("RGB")
     draw = ImageDraw.Draw(image)
 
     # Zeichne die Bounding Boxen und Texte
     result_image = draw_bounding_boxes_and_text_with_pillow(
-        image, draw, speech_bubbles_data
+        image, draw, speech_bubbles_data, font_path
     )
 
     # Speichere das Ergebnis

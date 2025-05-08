@@ -9,11 +9,11 @@ import os
 from .cluster import cluster_bounding_boxes
 
 
-def ocr_and_cluster(img_path, treshold=30):
+def ocr_and_cluster(lang, img_path, treshold=30):
 
     # Initialize PaddleOCR
     ocr = PaddleOCR(
-        lang="en",  # use English-only models
+        lang=lang,  # use English-only models
         use_angle_cls=True,
         det_model="en_PP-OCRv3_det",
         rec_model="en_PP-OCRv3_rec",

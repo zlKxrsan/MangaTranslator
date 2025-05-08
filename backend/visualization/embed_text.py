@@ -1,80 +1,123 @@
+"""
+Module for embedding translated text into images.
+
+This module provides functions to calculate text wrapping, determine font sizes,
+and embed text into speech bubbles within images.
+"""
+
 from PIL import Image, ImageDraw, ImageFont
+from typing import List, Tuple
 
 
-def get_best_font_size(text, font_path, max_width, max_height):
-    font_size = 10
-    while True:
-        font = ImageFont.truetype(font_path, size=font_size)
+def get_best_font_size(
+    text: str, font_path: str, max_width: int, max_height: int
+) -> int:
+    """
+    Determine the optimal font size to fit the given text within specified dimensions.
+
+    This function uses a binary search approach to find the largest font size
+    that allows the text to fit within the provided maximum width and height.
+    The text is wrapped to fit within the width, and the total height of the
+    wrapped lines is calculated to ensure it does not exceed the maximum height.
+
+    Args:
+        text (str): The text to fit within the dimensions.
+        font_path (str): Path to the font file to be used.
+        max_width (int): The maximum allowable width for the text.
+        max_height (int): The maximum allowable height for the text.
+
+    Returns:
+        int: The largest font size that fits the text within the specified dimensions.
+
+    Raises:
+        OSError: If the font file cannot be loaded.
+    """
+    min_size, max_size = 4, 100  # Reasonable bounds
+    best_size = min_size
+
+    while min_size <= max_size:
+        mid = (min_size + max_size) // 2
+        font = ImageFont.truetype(font_path, size=mid)
         wrapped = wrap_text(text, font, max_width)
 
         total_height = sum(
             font.getbbox(line)[3] - font.getbbox(line)[1] for line in wrapped
         )
         max_line_width = max(
-            font.getbbox(line)[2] - font.getbbox(line)[0] for line in wrapped
+            (font.getbbox(line)[2] - font.getbbox(line)[0]) for line in wrapped
         )
 
-        if total_height > max_height or max_line_width > max_width:
-            return font_size - 1  # vorherige Größe passt noch
-        font_size += 1
+        if total_height <= max_height and max_line_width <= max_width:
+            best_size = mid
+            min_size = mid + 1
+        else:
+            max_size = mid - 1
+
+    return best_size
 
 
-# Funktion zum Berechnen des Textumbruchs und der Textplatzierung
 def draw_bounding_boxes_and_text_with_pillow(
-    image, draw, speech_bubbles_data, font_path
-):
+    image: Image.Image,
+    draw: ImageDraw.ImageDraw,
+    speech_bubbles_data: List[List],
+    font_path: str,
+) -> Image.Image:
+    """
+    Draw bounding boxes and embed text into the image.
+
+    Args:
+        image (Image.Image): The image to draw on.
+        draw (ImageDraw.ImageDraw): The drawing context.
+        speech_bubbles_data (List[List]): List of speech bubble data (bounding boxes and text).
+        font_path (str): Path to the font file.
+
+    Returns:
+        Image.Image: The modified image with text embedded.
+    """
     width, height = image.size
     for bubble in speech_bubbles_data:
         cluster = bubble[:-1]
         text = bubble[-1]
 
-        x_min = int(min([p[0] for p in cluster]))
-        x_max = int(max([p[0] for p in cluster]))
-        y_min = int(min([p[1] for p in cluster]))
-        y_max = int(max([p[1] for p in cluster]))
+        x_min = int(min(p[0] for p in cluster))
+        x_max = int(max(p[0] for p in cluster))
+        y_min = int(min(p[1] for p in cluster))
+        y_max = int(max(p[1] for p in cluster))
 
-        sample_x = (x_min + x_max) // 2  # Mittlerer X-Wert
-        sample_y = y_max + 1  # Direkt unterhalb der Bounding Box (für Hintergrundfarbe)
+        sample_x = (x_min + x_max) // 2
+        sample_y = y_max + 1
 
-        # Hole die Hintergrundfarbe des Pixels unterhalb der Box
+        # Get the background color of the pixel below the bounding box
         if 0 <= sample_x < width and 0 <= sample_y < height:
             background_color = image.getpixel((sample_x, sample_y))
         else:
-            background_color = (
-                0,
-                0,
-                0,
-            )  # Fallback auf Schwarz, falls außerhalb des Bildes
+            background_color = (0, 0, 0)  # Default to black if out of bounds
 
-        # Box mit der ermittelten Farbe (leicht transparent, z.B. 160) füllen
+        # Fill the bounding box with a semi-transparent background
         draw.rectangle([x_min, y_min, x_max, y_max], fill=(*background_color[:3], 160))
 
-        # Bestimme passende Schriftgröße
+        # Determine the best font size
         try:
-            max_width = x_max - x_min - 10  # z.B. 5px Padding links und rechts
-            max_height = y_max - y_min - 10  # z.B. 5px Padding oben und unten
-
+            max_width = x_max - x_min - 10  # Add padding
+            max_height = y_max - y_min - 10
             best_size = get_best_font_size(text, font_path, max_width, max_height)
             font = ImageFont.truetype(font_path, size=best_size)
         except IOError:
             font = ImageFont.load_default()
 
-        max_width = x_max - x_min - 10
-        max_height = y_max - y_min - 10
-
+        # Wrap the text and calculate vertical alignment
         wrapped_text = wrap_text(text, font, max_width)
         text_height = sum(
             font.getbbox(line)[3] - font.getbbox(line)[1] for line in wrapped_text
         )
         y_offset = y_min + (max_height - text_height) // 2
 
-        # Berechne Helligkeit (Luminanz) nach ITU-R BT.709-Standard
+        # Calculate luminance to determine text color
         r, g, b = background_color[:3]
         luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
-
-        # Bestimme Textfarbe je nach Helligkeit
         text_color = (0, 0, 0) if luminance > 160 else (255, 255, 255)
 
+        # Draw each line of text
         for line in wrapped_text:
             text_width = font.getbbox(line)[2] - font.getbbox(line)[0]
             x_offset = x_min + (max_width - text_width) // 2
@@ -84,39 +127,65 @@ def draw_bounding_boxes_and_text_with_pillow(
     return image
 
 
-# Funktion zum Umbruch des Texts
-def wrap_text(text, font, max_width):
+def wrap_text(text: str, font: ImageFont.FreeTypeFont, max_width: int) -> List[str]:
+    """
+    Wrap text into multiple lines to fit within a specified maximum width.
+
+    This function splits the input text into words and iteratively builds lines
+    that fit within the given width constraint. If a word causes the current line
+    to exceed the maximum width, the line is finalized, and the word starts a new line.
+
+    Args:
+        text (str): The text to be wrapped.
+        font (ImageFont.FreeTypeFont): The font used to measure the text width.
+        max_width (int): The maximum allowable width for each line.
+
+    Returns:
+        List[str]: A list of strings, where each string represents a line of wrapped text.
+    """
     lines = []
     words = text.split()
-    current_line = []
+    current_line = ""
 
     for word in words:
-        current_line.append(word)
-        # Berechne die Breite des Texts mit getbbox
-        width = (
-            font.getbbox(" ".join(current_line))[2]
-            - font.getbbox(" ".join(current_line))[0]
-        )
-
-        if width > max_width:
-            lines.append(" ".join(current_line[:-1]))
-            current_line = [word]
+        test_line = f"{current_line} {word}".strip()
+        bbox = font.getbbox(test_line)
+        if bbox[2] - bbox[0] <= max_width:
+            current_line = test_line
+        else:
+            if current_line:
+                lines.append(current_line)
+            current_line = word
 
     if current_line:
-        lines.append(" ".join(current_line))
+        lines.append(current_line)
 
     return lines
 
 
-def embed_text_in_image(image_path, speech_bubbles_data, output_path, font_path):
-    # Lade das Bild
+def embed_text_in_image(
+    image_path: str, speech_bubbles_data: List[List], output_path: str, font_path: str
+) -> None:
+    """
+    Embed translated text into an image and save the result.
+
+    Args:
+        image_path (str): Path to the input image.
+        speech_bubbles_data (List[List]): List of speech bubble data (bounding boxes and text).
+        output_path (str): Path to save the output image.
+        font_path (str): Path to the font file.
+
+    Returns:
+        None
+    """
+    # Load the image
     image = Image.open(image_path).convert("RGB")
     draw = ImageDraw.Draw(image)
 
-    # Zeichne die Bounding Boxen und Texte
+    # Draw bounding boxes and embed text
     result_image = draw_bounding_boxes_and_text_with_pillow(
         image, draw, speech_bubbles_data, font_path
     )
 
-    # Speichere das Ergebnis
+    # Save the result
     result_image.save(output_path)

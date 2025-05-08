@@ -164,8 +164,10 @@ def wrap_text(text: str, font: ImageFont.FreeTypeFont, max_width: int) -> List[s
 
 
 def embed_text_in_image(
-    image_path: str, speech_bubbles_data: List[List], output_path: str, font_path: str
-) -> None:
+    image: Image.Image,
+    speech_bubbles_data: List[List],
+    font_path: str,
+) -> Image.Image:
     """
     Embed translated text into an image and save the result.
 
@@ -178,8 +180,8 @@ def embed_text_in_image(
     Returns:
         None
     """
-    # Load the image
-    image = Image.open(image_path).convert("RGB")
+
+    # Create a drawing context
     draw = ImageDraw.Draw(image)
 
     # Draw bounding boxes and embed text
@@ -188,4 +190,4 @@ def embed_text_in_image(
     )
 
     # Save the result
-    result_image.save(output_path)
+    return result_image

@@ -24,17 +24,17 @@ def get_font_path_for_language(lang_code: str) -> str:
         FileNotFoundError: If the font file does not exist at the specified path.
     """
     font_map: Dict[str, str] = {
-        "DE": ".fonts/Bangers/Bangers-Regular.ttf",
-        "EN": ".fonts/Bangers/Bangers-Regular.ttf",
-        "FR": ".fonts/Bangers/Bangers-Regular.ttf",
-        "ES": ".fonts/Bangers/Bangers-Regular.ttf",
-        "PT-BR": ".fonts/Bangers/Bangers-Regular.ttf",
-        "PL": ".fonts/Bangers/Bangers-Regular.ttf",
-        "JA": ".fonts/Noto_Sans_JP/NotoSansJP-VariableFont_wght.ttf",
-        "KO": ".fonts/Noto_Sans_KR/NotoSansKR-VariableFont_wght.ttf",
-        "ZH": ".fonts/Noto_Sans_SC/NotoSansSC-VariableFont_wght.ttf",  # Simplified Chinese
-        "TR": ".fonts/Bangers/Bangers-Regular.ttf",
-        "RU": ".fonts/Russo_One/RussoOne-Regular.ttf",
+        "DE": "resources/.fonts/Bangers/Bangers-Regular.ttf",
+        "EN": "resources/.fonts/Bangers/Bangers-Regular.ttf",
+        "FR": "resources/.fonts/Bangers/Bangers-Regular.ttf",
+        "ES": "resources/.fonts/Bangers/Bangers-Regular.ttf",
+        "PT-BR": "resources/.fonts/Bangers/Bangers-Regular.ttf",
+        "PL": "resources/.fonts/Bangers/Bangers-Regular.ttf",
+        "JA": "resources/.fonts/Noto_Sans_JP/NotoSansJP-VariableFont_wght.ttf",
+        "KO": "resources/.fonts/Noto_Sans_KR/NotoSansKR-VariableFont_wght.ttf",
+        "ZH": "resources/.fonts/Noto_Sans_SC/NotoSansSC-VariableFont_wght.ttf",  # Simplified Chinese
+        "TR": "resources/.fonts/Bangers/Bangers-Regular.ttf",
+        "RU": "resources/.fonts/Russo_One/RussoOne-Regular.ttf",
     }
 
     # Retrieve the font path from the map

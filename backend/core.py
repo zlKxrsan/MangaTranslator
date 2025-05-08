@@ -1,20 +1,28 @@
 """
-Main application for webtoon translation.
+Core application for webtoon translation.
 
 This script performs OCR on webtoon images, translates the extracted text,
 and embeds the translated text back into the images.
 """
 
+from PIL import Image
+import io
+
 from backend.ocr.paddle_ocr import ocr_and_cluster
 from backend.translation.deepl import translate_deepl_batch
 from backend.visualization.embed_text import embed_text_in_image
 from backend.utils.font_selector import get_font_path_for_language
-from backend.utils.file_utils import get_first_image_path
 
 
-def main() -> None:
+def process_image(
+    img_bytes: bytes = None,
+    source_lang: str = "EN",
+    target_lang: str = "DE",
+    ocr_lang: str = "en",
+    threshold=30,
+) -> bytes:
     """
-    Main function to process a webtoon image, translate its text, and embed the translated text back into the image.
+    core function to process a webtoon image, translate its text, and embed the translated text back into the image.
 
     Steps:
     1. Retrieve the first image from the panels directory.
@@ -25,20 +33,15 @@ def main() -> None:
     Returns:
         None
     """
-    # Get the input image path and output path
-    img_path, output_path = get_first_image_path()
 
-    # Define language codes
-    ocr_lang = "en"  # PaddleOCR language code
-    source_lang = "EN"  # DeepL source language code
-    target_lang = "DE"  # DeepL target language code
-    threshold = 30  # Clustering threshold
+    # Load the image from bytes
+    image = Image.open(io.BytesIO(img_bytes)).convert("RGB")
 
     # Get the font path for the target language
     font_path = get_font_path_for_language(target_lang)
 
     # Perform OCR and cluster the detected text
-    speech_bubbles = ocr_and_cluster(ocr_lang, img_path, threshold)
+    speech_bubbles = ocr_and_cluster(image)
 
     # Extract bounding boxes and texts
     bubbles = [sb[0] for sb in speech_bubbles]
@@ -53,10 +56,13 @@ def main() -> None:
     ]
 
     # Embed the translated text into the image
-    embed_text_in_image(img_path, speech_bubbles_data, output_path, font_path)
+    result_image = embed_text_in_image(image, speech_bubbles_data, font_path)
 
-    print("Processing complete. Translated image saved to:", output_path)
+    output = io.BytesIO()
+    result_image.save(output, format="PNG")
+
+    return output.getvalue()
 
 
 if __name__ == "__main__":
-    main()
+    process_image()

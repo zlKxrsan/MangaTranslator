@@ -8,8 +8,8 @@ from typing import Tuple, List
 
 
 def get_first_image_path(
-    panel_dir: str = ".panels",
-    output_dir: str = ".output",
+    panel_dir: str = "resources/.panels",
+    output_dir: str = "resources/.output",
     image_extensions: Tuple[str, ...] = (".png", ".jpg", ".jpeg", ".webp"),
 ) -> Tuple[str, str]:
     """

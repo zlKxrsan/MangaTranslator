@@ -5,7 +5,10 @@ This module provides a function to perform OCR on an image, extract bounding box
 and text, and cluster the results based on proximity.
 """
 
+from PIL import Image
 from typing import List, Dict, Any
+import numpy as np
+
 from paddleocr import PaddleOCR
 from .cluster import cluster_bounding_boxes
 from functools import lru_cache
@@ -30,7 +33,7 @@ def get_ocr(lang: str) -> PaddleOCR:
 
 
 def ocr_and_cluster(
-    lang: str, img_path: str, threshold: int = 30
+    image: Image.Image, lang: str = "en", threshold: int = 30
 ) -> List[Dict[str, Any]]:
     """
     Perform OCR on an image and cluster the detected text regions.
@@ -47,7 +50,8 @@ def ocr_and_cluster(
     ocr = get_ocr(lang)
 
     # Perform OCR on the image
-    result = ocr.ocr(img_path, cls=True)[0]
+    image_np = np.array(image)
+    result = ocr.ocr(image_np, cls=True)[0]
 
     # Extract bounding boxes and texts from the OCR result
     bbox = [line[0] for line in result]

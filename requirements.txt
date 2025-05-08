@@ -2,3 +2,6 @@ paddlepaddle
 paddleocr
 pillow
 setuptools
+fastapi
+uvicorn
+python-multipart

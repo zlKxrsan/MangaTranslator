@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bildübersetzer</title>
+</head>
+<body>
+  <h1>Bild hochladen und übersetzen</h1>
+  <form id="upload-form">
+    <input type="file" id="image-file" accept="image/*" required />
+    <button type="submit">Hochladen und verarbeiten</button>
+  </form>
+
+  <div id="result" style="margin-top:20px;"></div>
+
+  <script>
+    const form = document.getElementById("upload-form");
+    const resultDiv = document.getElementById("result");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById("image-file");
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch("http://localhost:8000/translate/", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error("Fehler beim Verarbeiten des Bildes.");
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+
+        resultDiv.innerHTML = `
+          <p>Ergebnis:</p>
+          <a href="${url}" download="translated.png">Download übersetztes Bild</a>
+          <br/>
+          <img src="${url}" alt="Resultat" style="max-width: 300px; margin-top:10px;" />
+        `;
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:red;">${err.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>

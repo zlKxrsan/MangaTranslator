@@ -2,22 +2,13 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import { Canvas } from "fabric";
 import ImageUpload from "./components/ImageLoader";
-import Editor from "./components/Editor";
+import ImageShower from "./components/ImageShower";
 
 function App() {
   const [imageUrl, setImageUrl] = useState(null);
 
-  const handleImageUpload = (event) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const newImageUrl = URL.createObjectURL(file);
-      setImageUrl(newImageUrl);
-    }
-  };
-
-  const handleIamgeDelete = () => {
+  const handleImageDelete = () => {
     setImageUrl(null);
     URL.revokeObjectURL(imageUrl);
   };
@@ -29,9 +20,9 @@ function App() {
         for Webtoons
       </h1>
       {!imageUrl ? (
-        <ImageUpload imageUrl={imageUrl} onImageUpload={handleImageUpload} />
+        <ImageUpload onImageTranslated={setImageUrl} />
       ) : (
-        <Editor imageUrl={imageUrl} onImageDelete={handleIamgeDelete} />
+        <ImageShower imageUrl={imageUrl} onImageDelete={handleImageDelete} />
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from backend.core import process_image
@@ -15,7 +15,10 @@ app.add_middleware(
 
 
 @app.post("/translate/")
-async def translate_image(file: UploadFile = File(...)):
+async def translate_image(
+    file: UploadFile = File(...),
+    target_lang: str = Form(...)
+):
     image_bytes = await file.read()
-    processed_image = process_image(img_bytes=image_bytes)
+    processed_image = process_image(img_bytes=image_bytes, target_lang=target_lang)
     return Response(content=processed_image, media_type="image/png")

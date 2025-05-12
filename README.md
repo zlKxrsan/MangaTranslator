@@ -49,10 +49,16 @@ Follow these steps to set up the project locally:
     docker-compose up --build -d
     ```
 
-4. Once the containers are running, open your browser and visit:  
+4. Once the containers are running, open your browser and visit (the first request will download the models and may take 1 minute):  
    [http://127.0.0.1:5173/](http://127.0.0.1:5173/)
 
 5. Start translating your Webtoon/comic pages! 😊
+
+---
+
+## 💭 Future Plans
+
+I experimented with training a model specifically for Manga/Manhwa OCR, but due to limited resources, the results were less accurate than expected. The codebase has been designed to potentially support future OCR models to improve the project. Same goes for future translation models to offer more language-support.
 
 ---
 
@@ -63,6 +69,7 @@ Follow these steps to set up the project locally:
 
 ---
 
-## 💭 Future Plans
+## License
 
-I experimented with training a model specifically for Manga/Manhwa OCR, but due to limited resources, the results were less accurate than expected. The codebase has been designed to potentially support future OCR models to improve the project. Same goes for future translation models to offer more language-support.
+This project is licensed under the MIT License – see the [LICENSE](./LICENSE) file for details.
+

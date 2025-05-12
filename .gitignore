@@ -1,5 +1,5 @@
-.panels
-.output
-.fonts
-resources
+__pycache__/
+.venv/
+.vscode
+
 config.py

@@ -7,7 +7,7 @@ with options for specifying source and target languages and formality levels.
 
 import requests
 from typing import List
-from resources.config import DEEPL_API_KEY
+from config import DEEPL_API_KEY
 
 DEEPL_API_URL = "https://api-free.deepl.com/v2/translate"
 

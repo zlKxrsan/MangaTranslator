@@ -8,10 +8,10 @@ and embeds the translated text back into the images.
 from PIL import Image
 import io
 
-from backend.ocr.paddle_ocr import ocr_and_cluster
-from backend.translation.deepl import translate_deepl_batch
-from backend.visualization.embed_text import embed_text_in_image
-from backend.utils.font_selector import get_font_path_for_language
+from ocr.paddle_ocr import ocr_and_cluster
+from translation.deepl import translate_deepl_batch
+from visualization.embed_text import embed_text_in_image
+from utils.font_selector import get_font_path_for_language
 
 
 def process_image(
